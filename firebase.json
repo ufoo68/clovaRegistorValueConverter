@@ -1,1 +1,14 @@
-{}
+{
+    "hosting": {
+        "public": "./",
+        "rewrites": [{
+            "source": "/clova",
+            "function": "clova"
+        }],
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ]
+    }
+}
