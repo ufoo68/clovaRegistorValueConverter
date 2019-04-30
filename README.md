@@ -1,5 +1,9 @@
 # clovaRegistorValueConverter
-Clovaスキル「抵抗値換算」のレポジトリです。サーバは[Firebase](https://console.firebase.google.com)を使ってます。
+Clovaスキル「抵抗値換算」のレポジトリです。サーバは[Firebase](https://console.firebase.google.com)を使ってます。  
+
+# 「抵抗値換算」について
+電子工作に使う抵抗素子には「カラーコード」と呼ばれるものが表示されています。このカラーコードの並びから抵抗値を読み取ることができますが、電子工作に慣れていない人には「カラーコード -> 抵抗値」への変換がすぐには難しいです。そこでこのスキルを使ってClovaの前でカラーコードの色の並びを読み上げて、それを抵抗値に変換したものをClovaに読んでもらうものを作りました。  
+このスキルでは精密抵抗器を無視した4つのカラーコードの並びで、[このサイト](http://part.freelab.jp/s_regi_list.html)の「よく使われる抵抗の一覧表」の抵抗素子に対応します（ArduinoでLEDやセンサを使う場合は1kか10kの数値のものしか基本は使わないかと）。カスタムスロットとして同一レポジトリの`colorCodeValue.tsv`を用いています。  
 
 # Firebaseの環境構築方法
 ## 初期設定
@@ -15,9 +19,6 @@ Clovaスキル「抵抗値換算」のレポジトリです。サーバは[Fireb
 次にFirebaseにデプロイします。  
 ```firebase deploy --only functions,hosting```  
 
-## Cloud Firestoreを使う
-カラーコードから抵抗値への変換にCloud Firestoreというデータベースを用いました。以下のコマンドで必要なパッケージをインストールします。  
-```npm install firebase-admin --save```  
   
 ## その他の設定
 環境変数は以下のコマンドで設定可能です。  
@@ -49,11 +50,6 @@ const extensionId = encodeURIComponent(functions.config().clova.extension.id);
 }
 ```
 
-# 「抵抗値換算」について
-電子工作に使う抵抗素子には「カラーコード」と呼ばれるものが表示されています。このカラーコードの並びから抵抗値を読み取ることができますが、電子工作に慣れていない人には「カラーコード -> 抵抗値」への変換がすぐには難しいです。そこでこのスキルを使ってClovaの前でカラーコードの色の並びを読み上げて、それを抵抗値に変換したものをClovaに読んでもらうものを作りました。  
-このスキルでは精密抵抗器を無視した4つのカラーコードの並びで、[このサイト](http://part.freelab.jp/s_regi_list.html)の「よく使われる抵抗の一覧表」の抵抗素子に対応します（ArduinoでLEDやセンサを使う場合は1kか10kの数値のものしか基本は使わないかと）。カスタムスロットとして同一レポジトリの`colorCodeValue.tsv`を用いています。  
-
-
 # Clovaの開発について
 expressを用いたスキルの開発は[このサイト](https://dotstud.io/blog/clova-cek-nodejs-tutorial/#node-js%E3%81%AE%E7%92%B0%E5%A2%83%E6%BA%96%E5%82%99)を参照して行いました。  
 `functions/`上で以下のコマンドを用いて必要なpackageをインストールします。  
@@ -67,7 +63,11 @@ const colorcodes = { 黒:0, 茶:1, 赤:2, 橙:3, 黄:4, 緑:5, 青:6, 紫:7, 灰
 ```  
 抵抗値の計算は以下の式で求めます
 
-```math
-RegistorValue = (FirstColor　\times 10 + SecondColore) \times 10^{ThirdColor}
-```
-`FirstColor ~ ThirdColor`は「金」を最終端としたときの各色です。  
+```js
+const registorValue = (colorcodes[slots.colorcode[0]] * 10 + colorcodes[slots.colorcode[1]]) * 10 ** colorcodes[slots.colorcode[2]];
+``` 
+
+# TODO
+- 「抵抗値 -> カラーコード」への変換
+- 1000以上の抵抗値をキロ読みにする
+- 「カラーコードの覚え方」のインテントを作る
