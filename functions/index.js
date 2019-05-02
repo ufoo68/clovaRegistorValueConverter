@@ -5,6 +5,19 @@ const bodyParser = require('body-parser');
 
 const extensionId = encodeURIComponent(functions.config().clova.extension.id);
 
+const howToMemorize = {
+    橙 : "橙はミカン",
+    灰 : "ハイヤー",
+    白 : "四苦八苦",
+    紫 : "紫しち部",
+    緑 : "さつきみどり",
+    茶 : "茶を一杯",
+    赤 : "赤いニンジン",
+    青 : "青虫",
+    黄 : "四季の色",
+    黒 : "黒い礼服"
+  };
+
 const colorcodes = { 黒:'0', 茶:'1', 赤:'2', 橙:'3', 黄:'4', 緑:'5', 青:'6', 紫:'7', 灰:'8', 白:'9' };
 
 const clovaSkillHandler = clova.Client
@@ -75,7 +88,7 @@ const clovaSkillHandler = clova.Client
                 type: 'PlainText',
                 value:  `まだ対応していない数字です。`
             }
-            const registorValue  = String(slots.number);
+            const registorValue = String(slots.number);
             console.log('slots:', registorValue)
             // 半角数字のとき
             if (typeof Number(registorValue) === 'number' && registorValue.length >= 2) {
@@ -91,6 +104,19 @@ const clovaSkillHandler = clova.Client
                 const colorcode = `${firstColor}${secondColor}${thirdColor}`;
                 speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`
             }
+            responseHelper.setSimpleSpeech(speech);
+            responseHelper.setSimpleSpeech(speech, true);
+        }
+
+        else if (intent === 'HowToMemorizeColorcode') {
+            const slots = responseHelper.getSlots();
+            let speech = {
+                lang: 'ja',
+                type: 'PlainText',
+                value:  `対応していない色です。`
+            }
+            const mnemonic = howToMemorize[String(slots.color)];
+            speech.value = `${mnemonic}。と覚えましょう。`
             responseHelper.setSimpleSpeech(speech);
             responseHelper.setSimpleSpeech(speech, true);
         }
