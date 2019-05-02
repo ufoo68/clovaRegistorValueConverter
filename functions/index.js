@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const extensionId = encodeURIComponent(functions.config().clova.extension.id);
 
-const colorcodes = { 黒:0, 茶:1, 赤:2, 橙:3, 黄:4, 緑:5, 青:6, 紫:7, 灰:8, 白:9 };
+const colorcodes = { 黒:'0', 茶:'1', 赤:'2', 橙:'3', 黄:'4', 緑:'5', 青:'6', 紫:'7', 灰:'8', 白:'9' };
 
 const clovaSkillHandler = clova.Client
     .configureSkill()
@@ -25,19 +25,68 @@ const clovaSkillHandler = clova.Client
         const sessionId = responseHelper.getSessionId();
 
         console.log('Intent:' + intent);
+
+        // カラーコード -> 抵抗値の処理
         if(intent === 'FindValueByColorcodeIntent'){
             const slots = responseHelper.getSlots();
-            console.log(slots.colorcode);
-            //デフォルトのスピーチ内容を記載 - 該当スロットがない場合をデフォルト設定
+            const colorcode = String(slots.colorcode);
             let speech = {
                 lang: 'ja',
                 type: 'PlainText',
-                value:  `登録されていない抵抗値です。`
+                value:  `まだ対応していない抵抗値です。`
             }
-            if (slots.colorcode.length === 4) {
-                const registorValue = (colorcodes[slots.colorcode[0]] * 10 + colorcodes[slots.colorcode[1]]) * 10 ** colorcodes[slots.colorcode[2]];
-                console.log('Registor value:', registorValue);
-                speech.value = `${slots.colorcode}の抵抗値は${registorValue}Ωです。`;
+            // 通常の４つのカラーコードの並びの抵抗
+            if (colorcode.length === 4) {
+                const firstValue = colorcodes[colorcode[0]] //1番目のカラーコード
+                const secondValue = colorcodes[colorcode[1]] //2番目のカラーコード
+                const thirdValue = colorcodes[colorcode[2]] //3番目のカラーコード
+                const registorValue = thirdValue => { 
+                    switch(thirdValue) {
+                        case '0':
+                            return `${firstValue}${secondValue}`;
+                        case '1':
+                            return `${firstValue}${secondValue}0`;
+                        case '2':
+                            if (secondValue === '0') {
+                                return `${firstValue}キロ`;
+                            } else {
+                                return `${firstValue}点${secondValue}キロ`;
+                            }                       
+                        case '3':
+                            return `${firstValue}${secondValue}キロ`;
+                        case '4':
+                            return `${firstValue}${secondValue}0キロ`;
+                        default:
+                            return '？';
+                    }
+                }
+                console.log('Registor value:', registorValue(thirdValue));
+                speech.value = `${colorcode}の抵抗値は${registorValue(thirdValue)}Ωです。`;
+            }
+            responseHelper.setSimpleSpeech(speech);
+            responseHelper.setSimpleSpeech(speech, true);
+        }
+
+        // 抵抗値 -> カラーコードの処理
+        else if (intent === 'FindColorcodeByValueIntent') {
+            const slots = responseHelper.getSlots();
+            let speech = {
+                lang: 'ja',
+                type: 'PlainText',
+                value:  `まだ対応していない数字です。`
+            }
+            console.log(slots.number);
+            const registorValue  = String(slots.number);
+            // 半角数字のとき
+            if (typeof Number(registorValue) === 'number') {
+                const firstColor = Object.keys(colorcodes).filter(key => { 
+                    return colorcodes[key] === registorValue.slice(0, 1)
+                });
+                const secondColor = Object.keys(colorcodes).filter(key => { 
+                    return colorcodes[key] === registorValue.slice(1, 2)
+                });
+                const colorcode = `${firstColor}${secondColor}`;
+                speech.value = `${registorValue}Ωのカラーコードは${colorcode}です。`
             }
             responseHelper.setSimpleSpeech(speech);
             responseHelper.setSimpleSpeech(speech, true);
