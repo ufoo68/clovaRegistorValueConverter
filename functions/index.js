@@ -75,18 +75,21 @@ const clovaSkillHandler = clova.Client
                 type: 'PlainText',
                 value:  `まだ対応していない数字です。`
             }
-            console.log(slots.number);
             const registorValue  = String(slots.number);
+            console.log('slots:', registorValue)
             // 半角数字のとき
-            if (typeof Number(registorValue) === 'number') {
+            if (typeof Number(registorValue) === 'number' && registorValue.length >= 2) {
                 const firstColor = Object.keys(colorcodes).filter(key => { 
                     return colorcodes[key] === registorValue.slice(0, 1)
                 });
                 const secondColor = Object.keys(colorcodes).filter(key => { 
                     return colorcodes[key] === registorValue.slice(1, 2)
                 });
-                const colorcode = `${firstColor}${secondColor}`;
-                speech.value = `${registorValue}Ωのカラーコードは${colorcode}です。`
+                const thirdColor = Object.keys(colorcodes).filter(key => { 
+                    return colorcodes[key] === String(registorValue.length - 2)
+                });
+                const colorcode = `${firstColor}${secondColor}${thirdColor}`;
+                speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`
             }
             responseHelper.setSimpleSpeech(speech);
             responseHelper.setSimpleSpeech(speech, true);
