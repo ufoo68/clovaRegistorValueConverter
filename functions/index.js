@@ -16,9 +16,20 @@ const howToMemorize = {
     青 : "青虫",
     黄 : "四季の色",
     黒 : "黒い礼服"
-  };
+};
 
-const colorcodes = { 黒:'0', 茶:'1', 赤:'2', 橙:'3', 黄:'4', 緑:'5', 青:'6', 紫:'7', 灰:'8', 白:'9' };
+const colorcodes = { 
+    黒:'0', 
+    茶:'1', 
+    赤:'2', 
+    橙:'3', 
+    黄:'4', 
+    緑:'5', 
+    青:'6', 
+    紫:'7', 
+    灰:'8', 
+    白:'9' 
+};
 
 const clovaSkillHandler = clova.Client
     .configureSkill()
@@ -90,7 +101,7 @@ const clovaSkillHandler = clova.Client
             }
             const registorValue = String(slots.number);
             console.log('slots:', registorValue)
-            // 半角数字のとき
+            // 半角数字のとき(漢数字は自動的に半角英数字に変換される)
             if (typeof Number(registorValue) === 'number' && registorValue.length >= 2) {
                 const firstColor = Object.keys(colorcodes).filter(key => { 
                     return colorcodes[key] === registorValue.slice(0, 1)
@@ -107,7 +118,7 @@ const clovaSkillHandler = clova.Client
             responseHelper.setSimpleSpeech(speech);
             responseHelper.setSimpleSpeech(speech, true);
         }
-
+        // カラーコードの覚え方
         else if (intent === 'HowToMemorizeColorcode') {
             const slots = responseHelper.getSlots();
             let speech = {
@@ -127,7 +138,6 @@ const clovaSkillHandler = clova.Client
         const sessionId = responseHelper.getSessionId();
     })
     .handle();
-
 
 const app = new express();
 
