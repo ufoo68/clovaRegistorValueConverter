@@ -59,15 +59,63 @@ Clovaの公式SDKを用いない理由は[この記事](https://blog.tanakamidni
 ## カラーコードから抵抗値への変換
 まず連想配列を用意しました。色を`key`に対応する数値を`value`に設定してます。  
 ```JavaScript
-const colorcodes = { 黒:0, 茶:1, 赤:2, 橙:3, 黄:4, 緑:5, 青:6, 紫:7, 灰:8, 白:9 };
+const colorcodes = { 黒:'0', 茶:'1', 赤:'2', 橙:'3', 黄:'4', 緑:'5', 青:'6', 紫:'7', 灰:'8', 白:'9' };
 ```  
 抵抗値の計算は以下の式で求めます
 
 ```js
-const registorValue = (colorcodes[slots.colorcode[0]] * 10 + colorcodes[slots.colorcode[1]]) * 10 ** colorcodes[slots.colorcode[2]];
+const registorValue = (1番目のカラーコード * 10 + 2番目のカラーコード) * 10 ** 3番目のカラーコード;
 ``` 
 
+しかしこの抵抗値を言葉としてアウトプットさせるときは「キロ」などの読み変換させるほうが自然になります。  
+そこで`registorValue`への代入式を以下のように拡張させました。
+
+```js
+const registorValue = thirdValue => { 
+    switch(thirdValue) {
+        case '0':
+            return `${firstValue}${secondValue}`;
+        case '1':
+            return `${firstValue}${secondValue}0`;
+        case '2':
+            if (secondValue === '0') {
+                return `${firstValue}キロ`;
+            } else {
+                return `${firstValue}点${secondValue}キロ`;
+            }                       
+        case '3':
+            return `${firstValue}${secondValue}キロ`;
+        case '4':
+            return `${firstValue}${secondValue}0キロ`;
+        default:
+            return '？';
+    }
+}
+```
+`firstValue, secondValue, thirdValue`はそれぞれ1番目～3番目のカラーコードに対しています。`case 5: ~ case 9:`の実装をしていませんが、元々スロットを用意していないので省略しました。  
+
+## 抵抗値 -> カラーコードへの変換
+半角の数字スロットを受け取ったときに、その各桁の数値に対応する色のkeyを取得していくような処理を以下のように実装しました。 
+
+```js
+const registorValue  = String(slots.number);
+if (typeof Number(registorValue) === 'number' && registorValue.length >= 2) {
+    const firstColor = Object.keys(colorcodes).filter(key => { 
+        return colorcodes[key] === registorValue.slice(0, 1)
+    });
+    const secondColor = Object.keys(colorcodes).filter(key => { 
+        return colorcodes[key] === registorValue.slice(1, 2)
+    });
+    const thirdColor = Object.keys(colorcodes).filter(key => { 
+        return colorcodes[key] === String(registorValue.length - 2)
+    });
+    const colorcode = `${firstColor}${secondColor}${thirdColor}`;
+    speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`
+}
+```
+
+抵抗値を2桁以上と制限をかけていますが、通常は3桁以上の抵抗値をよく使うので実用上は問題ないと思います。今回は誤差の値は考慮しないので4番目のカラーコードをデフォルトで金にしました。  
+
 # TODO
-- 「抵抗値 -> カラーコード」への変換
-- 1000以上の抵抗値をキロ読みにする
+- 漢数字のスロットを受け取ったときの処理
 - 「カラーコードの覚え方」のインテントを作る
