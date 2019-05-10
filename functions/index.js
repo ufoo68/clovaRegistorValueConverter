@@ -88,7 +88,9 @@ const clovaSkillHandler = clova.Client
                 speech.value = `${colorcode}の抵抗値は${registorValue(thirdValue)}Ωです。`;
             }
             responseHelper.setSimpleSpeech(speech);
-            responseHelper.setSimpleSpeech(speech, true);
+            responseHelper.setSimpleSpeech(
+                clova.SpeechBuilder.createSpeechText('抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。'), true
+            );
         }
 
         // 抵抗値 -> カラーコードの処理
@@ -116,7 +118,9 @@ const clovaSkillHandler = clova.Client
                 speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`
             }
             responseHelper.setSimpleSpeech(speech);
-            responseHelper.setSimpleSpeech(speech, true);
+            responseHelper.setSimpleSpeech(
+                clova.SpeechBuilder.createSpeechText('抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。'), true
+            );
         }
         // カラーコードの覚え方
         else if (intent === 'HowToMemorizeColorcode') {
@@ -129,7 +133,9 @@ const clovaSkillHandler = clova.Client
             const mnemonic = howToMemorize[String(slots.color)];
             speech.value = `${mnemonic}。と覚えましょう。`
             responseHelper.setSimpleSpeech(speech);
-            responseHelper.setSimpleSpeech(speech, true);
+            responseHelper.setSimpleSpeech(
+                clova.SpeechBuilder.createSpeechText('抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。'), true
+            );
         }
 
         else {
@@ -139,7 +145,9 @@ const clovaSkillHandler = clova.Client
                 value:  `もう一度お願いします。`
             }
             responseHelper.setSimpleSpeech(speech);
-            responseHelper.setSimpleSpeech(speech, true);
+            responseHelper.setSimpleSpeech(
+                clova.SpeechBuilder.createSpeechText('抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。'), true
+            );
         }
     })
 
