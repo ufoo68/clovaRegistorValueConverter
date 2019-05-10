@@ -28,7 +28,7 @@ Clovaスキル「抵抗値換算」のレポジトリです。サーバは[Fireb
 コード上で用いたい場合は、以下のようにして呼び出します。  
 
 ```JavaScript
-const extensionId = encodeURIComponent(functions.config().clova.extension.id);
+const extensionId = functions.config().clova.extension.id;
 ```  
 
 また、`firebase.json`は以下のように設定しました。  

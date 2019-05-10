@@ -3,7 +3,7 @@ const clova = require('@line/clova-cek-sdk-nodejs');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const extensionId = encodeURIComponent(functions.config().clova.extension.id);
+const extensionId = functions.config().clova.extension.id;
 
 const howToMemorize = {
     橙 : "橙はミカン",
@@ -39,7 +39,7 @@ const clovaSkillHandler = clova.Client
         responseHelper.setSimpleSpeech({
             lang: 'ja',
             type: 'PlainText',
-            value: '抵抗器のカラーコードを教えてください。',
+            value: '抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。',
         });
     })
 
@@ -128,6 +128,16 @@ const clovaSkillHandler = clova.Client
             }
             const mnemonic = howToMemorize[String(slots.color)];
             speech.value = `${mnemonic}。と覚えましょう。`
+            responseHelper.setSimpleSpeech(speech);
+            responseHelper.setSimpleSpeech(speech, true);
+        }
+
+        else {
+            let speech = {
+                lang: 'ja',
+                type: 'PlainText',
+                value:  `もう一度お願いします。`
+            }
             responseHelper.setSimpleSpeech(speech);
             responseHelper.setSimpleSpeech(speech, true);
         }
