@@ -57,7 +57,7 @@ const clovaSkillHandler = clova.Client
             let speech = {
                 lang: 'ja',
                 type: 'PlainText',
-                value:  `まだ対応していない抵抗値です。`
+                value:  `まだ対応していないカラーコードです。`
             }
             // 通常の４つのカラーコードの並びの抵抗
             if (colorcode.length === 4) {
@@ -74,14 +74,14 @@ const clovaSkillHandler = clova.Client
                             if (secondValue === '0') {
                                 return `${firstValue}キロ`;
                             } else {
-                                return `${firstValue}点${secondValue}キロ`;
+                                return `${firstValue}.${secondValue}キロ`;
                             }                       
                         case '3':
                             return `${firstValue}${secondValue}キロ`;
                         case '4':
                             return `${firstValue}${secondValue}0キロ`;
                         default:
-                            return '？';
+                            return '対応していない抵抗器の値の';
                     }
                 }
                 console.log('Registor value:', registorValue(thirdValue));
@@ -102,7 +102,7 @@ const clovaSkillHandler = clova.Client
             const registorValue = String(slots.number);
             console.log('slots:', registorValue)
             // 半角数字のとき(漢数字は自動的に半角英数字に変換される)
-            if (typeof Number(registorValue) === 'number' && registorValue.length >= 2) {
+            if (registorValue !== 'undefined' && registorValue.length >= 2) {
                 const firstColor = Object.keys(colorcodes).filter(key => { 
                     return colorcodes[key] === registorValue.slice(0, 1)
                 });
