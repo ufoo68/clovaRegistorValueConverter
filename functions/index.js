@@ -46,7 +46,6 @@ const clovaSkillHandler = clova.Client
     //ユーザーからの発話が来たら反応する箇所
     .onIntentRequest(async responseHelper => {
         const intent = responseHelper.getIntentName();
-        const sessionId = responseHelper.getSessionId();
         const slots = responseHelper.getSlots();
 
         console.log('Intent:' + intent);
@@ -95,6 +94,7 @@ const clovaSkillHandler = clova.Client
         // 抵抗値 -> カラーコードの処理
         case 'FindColorcodeByValueIntent':
             const registorValue = String(slots.number);
+            const registorValueUnit = String(slots.unitnumber);
             console.log('slots:', registorValue)
             // 半角数字のとき(漢数字は自動的に半角英数字に変換される)
             if (registorValue !== 'undefined' && registorValue.length >= 2) {
