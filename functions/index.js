@@ -108,14 +108,16 @@ const clovaSkillHandler = clova.Client
                     return colorcodes[key] === String(registorValue.length - 2)
                 });
                 const colorcode = `${firstColor}${secondColor}${thirdColor}`;
-                speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`
+                speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`;
+            } else {
+                speech.value = `単位なしの数字で教えてください。`;
             }
             break;
 
         // カラーコードの覚え方
         case 'HowToMemorizeColorcode':
             const mnemonic = howToMemorize[String(slots.color)];
-            speech.value = `${mnemonic}。と覚えましょう。`
+            if (mnemonic !== 'undefined') speech.value = `${mnemonic}。と覚えましょう。`;
             break;
         
         //Intentをうまく受け取れなかったとき
