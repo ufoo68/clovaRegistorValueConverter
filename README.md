@@ -53,7 +53,7 @@ const extensionId = functions.config().clova.extension.id;
 # Clovaの開発について
 expressを用いたスキルの開発は[このサイト](https://dotstud.io/blog/clova-cek-nodejs-tutorial/#node-js%E3%81%AE%E7%92%B0%E5%A2%83%E6%BA%96%E5%82%99)を参照して行いました。  
 `functions/`上で以下のコマンドを用いて必要なpackageをインストールします。  
-```npm install --save https://github.com/TanakaMidnight/clova-cek-sdk-nodejs express body-parser```  
+```npm install --save https://github.com/TanakaMidnight/clova-cek-sdk-nodejs express```  
 Clovaの公式SDKを用いない理由は[この記事](https://blog.tanakamidnight.com/2018/09/firebase-clova-sdk-node8/)を参照してください。  
 
 ## カラーコードから抵抗値への変換

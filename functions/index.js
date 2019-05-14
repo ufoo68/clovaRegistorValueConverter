@@ -1,7 +1,6 @@
 const functions = require('firebase-functions');
 const clova = require('@line/clova-cek-sdk-nodejs');
 const express = require('express');
-const bodyParser = require('body-parser');
 
 const extensionId = functions.config().clova.extension.id;
 
@@ -39,7 +38,7 @@ const clovaSkillHandler = clova.Client
         responseHelper.setSimpleSpeech({
             lang: 'ja',
             type: 'PlainText',
-            value: '抵抗器のカラーコード、またはカラーコードに変換したい抵抗値を教えてください。',
+            value: '抵抗器の４つのカラーコードを、またはカラーコードに変換したい抵抗値を、キロ、メガ、無しの数字で教えてください。',
         });
     })
 
@@ -57,73 +56,74 @@ const clovaSkillHandler = clova.Client
         }
 
         switch(intent) {
-        // カラーコード -> 抵抗値の処理
-        case 'FindValueByColorcodeIntent':
-            const colorcode = String(slots.colorcode);
-            
-            // 通常の４つのカラーコードの並びの抵抗
-            if (colorcode.length === 4) {
-                const firstValue = colorcodes[colorcode[0]] //1番目のカラーコード
-                const secondValue = colorcodes[colorcode[1]] //2番目のカラーコード
-                const thirdValue = colorcodes[colorcode[2]] //3番目のカラーコード
-                const registorValue = thirdValue => { 
-                    switch(thirdValue) {
-                        case '0':
-                            return `${firstValue}${secondValue}`;
-                        case '1':
-                            return `${firstValue}${secondValue}0`;
-                        case '2':
-                            if (secondValue === '0') {
-                                return `${firstValue}キロ`;
-                            } else {
-                                return `${firstValue}.${secondValue}キロ`;
-                            }                       
-                        case '3':
-                            return `${firstValue}${secondValue}キロ`;
-                        case '4':
-                            return `${firstValue}${secondValue}0キロ`;
-                        default:
-                            return '対応していない抵抗器の値の';
+
+            // カラーコード -> 抵抗値の処理
+            case 'FindValueByColorcodeIntent':
+                const colorcode = String(slots.colorcode);
+                
+                // 通常の４つのカラーコードの並びの抵抗
+                if (colorcode.length === 4) {
+                    const firstValue = colorcodes[colorcode[0]] //1番目のカラーコード
+                    const secondValue = colorcodes[colorcode[1]] //2番目のカラーコード
+                    const thirdValue = colorcodes[colorcode[2]] //3番目のカラーコード
+                    const registorValue = thirdValue => { 
+                        switch(thirdValue) {
+                            case '0':
+                                return `${firstValue}${secondValue}`;
+                            case '1':
+                                return `${firstValue}${secondValue}0`;
+                            case '2':
+                                if (secondValue === '0') {
+                                    return `${firstValue}キロ`;
+                                } else {
+                                    return `${firstValue}.${secondValue}キロ`;
+                                }                       
+                            case '3':
+                                return `${firstValue}${secondValue}キロ`;
+                            case '4':
+                                return `${firstValue}${secondValue}0キロ`;
+                            default:
+                                return '対応していない抵抗器の値の';
+                        }
                     }
+                    console.log('Registor value:', registorValue(thirdValue));
+                    speech.value = `${colorcode}の抵抗値は${registorValue(thirdValue)}Ωです。`;
                 }
-                console.log('Registor value:', registorValue(thirdValue));
-                speech.value = `${colorcode}の抵抗値は${registorValue(thirdValue)}Ωです。`;
-            }
-            break;
+                break;
 
-        // 抵抗値 -> カラーコードの処理
-        case 'FindColorcodeByValueIntent':
-            const registorValue = String(slots.number);
-            const registorValueUnit = String(slots.unitnumber);
-            console.log('slots:', registorValue)
-            // 半角数字のとき(漢数字は自動的に半角英数字に変換される)
-            if (registorValue !== 'undefined' && registorValue.length >= 2) {
-                const firstColor = Object.keys(colorcodes).filter(key => { 
-                    return colorcodes[key] === registorValue.slice(0, 1)
-                });
-                const secondColor = Object.keys(colorcodes).filter(key => { 
-                    return colorcodes[key] === registorValue.slice(1, 2)
-                });
-                const thirdColor = Object.keys(colorcodes).filter(key => { 
-                    return colorcodes[key] === String(registorValue.length - 2)
-                });
-                const colorcode = `${firstColor}${secondColor}${thirdColor}`;
-                speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`;
-            } else {
-                speech.value = `単位なしの数字で教えてください。`;
-            }
-            break;
+            // 抵抗値 -> カラーコードの処理
+            case 'FindColorcodeByValueIntent':
+                const registorValue = String(slots.number);
+                const registorValueUnit = String(slots.unitnumber);
+                console.log('slots:', registorValue)
+                // 半角数字のとき(漢数字は自動的に半角英数字に変換される)
+                if (registorValue !== 'undefined' && registorValue.length >= 2) {
+                    const firstColor = Object.keys(colorcodes).filter(key => { 
+                        return colorcodes[key] === registorValue.slice(0, 1)
+                    });
+                    const secondColor = Object.keys(colorcodes).filter(key => { 
+                        return colorcodes[key] === registorValue.slice(1, 2)
+                    });
+                    const thirdColor = Object.keys(colorcodes).filter(key => { 
+                        return colorcodes[key] === String(registorValue.length - 2)
+                    });
+                    const colorcode = `${firstColor}${secondColor}${thirdColor}`;
+                    speech.value = `${registorValue}Ωのカラーコードは${colorcode}金です。`;
+                } else {
+                    speech.value = `単位なしの数字で教えてください。`;
+                }
+                break;
 
-        // カラーコードの覚え方
-        case 'HowToMemorizeColorcode':
-            const mnemonic = howToMemorize[String(slots.color)];
-            if (mnemonic !== 'undefined') speech.value = `${mnemonic}。と覚えましょう。`;
-            break;
-        
-        //Intentをうまく受け取れなかったとき
-        default:
-            speech.value = `もう一度お願いします。`;
-            break;
+            // カラーコードの覚え方
+            case 'HowToMemorizeColorcode':
+                const mnemonic = howToMemorize[String(slots.color)];
+                if (mnemonic !== 'undefined') speech.value = `${mnemonic}。と覚えましょう。`;
+                break;
+            
+            //Intentをうまく受け取れなかったとき
+            default:
+                speech.value = `もう一度お願いします。`;
+                break;
         }
         responseHelper.setSimpleSpeech(speech);
         responseHelper.setSimpleSpeech(
